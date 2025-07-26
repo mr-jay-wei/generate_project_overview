@@ -116,5 +116,5 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ---
 
-**作者**: [你的用户名]  
-**项目主页**: [GitHub仓库链接]
+**作者**: [Jay Wei]  
+**项目主页**: [[GitHub仓库链接](https://github.com/mr-jay-wei)]
