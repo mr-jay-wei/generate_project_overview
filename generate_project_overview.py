@@ -12,7 +12,7 @@ OUTPUT_FILENAME = "project_overview.md"
 
 # 这是一个经过验证的、正确的忽略模式列表
 IGNORE_PATTERNS: Set[str] = {
-    ".git", ".vscode", ".idea", "__pycache__", "node_modules", "venv",
+    ".git", ".vscode", ".idea", "__pycache__", "node_modules", "venv", ".venv",
     ".env", "build", "dist", "*.pyc", "*.egg-info", "*.log",
     "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.svg", "*.ico", "*.webp",
     "*.mp3", "*.wav", "*.ogg", "*.flac", "*.aac", "*.m4a",
