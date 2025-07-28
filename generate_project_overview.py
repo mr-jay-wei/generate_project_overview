@@ -14,6 +14,8 @@ OUTPUT_FILENAME = "project_overview.md"
 IGNORE_PATTERNS: Set[str] = {
     ".git", ".vscode", ".idea", "__pycache__", "node_modules", "venv", ".venv",
     ".env", "build", "dist", "*.pyc", "*.egg-info", "*.log",
+    # UV 和数据相关文件/文件夹
+    "uv.lock", "data", "my_chromadb_vector_store",
     "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp", "*.svg", "*.ico", "*.webp",
     "*.mp3", "*.wav", "*.ogg", "*.flac", "*.aac", "*.m4a",
     "*.mp4", "*.mov", "*.avi", "*.mkv", "*.webm", "*.flv",
