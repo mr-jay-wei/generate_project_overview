@@ -32,11 +32,14 @@ IGNORE_PATTERNS: Set[str] = {
 LANGUAGE_MAP: Dict[str, str] = {
     ".py": "python", ".js": "javascript", ".ts": "typescript", ".html": "html",
     ".css": "css", ".scss": "scss", ".json": "json", ".xml": "xml",
-    ".yaml": "yaml", ".yml": "yaml", ".md": "markdown", ".sh": "shell",
+    ".yaml": "yaml", ".yml": "yaml", ".md": "text", ".sh": "shell",
     ".bat": "batch", ".java": "java", ".cpp": "cpp", ".c": "c", ".h": "c",
     ".cs": "csharp", ".go": "go", ".rs": "rust", ".php": "php", ".rb": "ruby",
     ".swift": "swift", ".kt": "kotlin", "Dockerfile": "dockerfile",
 }
+
+# 需要特殊处理的文件类型
+SPECIAL_HANDLING_EXTENSIONS = {".md", ".txt", ".rst"}
 
 class ProjectDocumenter:
     """
@@ -127,6 +130,16 @@ class ProjectDocumenter:
         build_recursive(self.root_path, "")
         return "```\n" + "\n".join(tree_lines) + "\n```"
 
+    def _escape_markdown_content(self, content: str) -> str:
+        """转义markdown内容中的特殊字符，防止渲染冲突"""
+        # 转义代码块标记
+        content = content.replace("```", "\\`\\`\\`")
+        # 转义其他可能冲突的markdown语法
+        content = content.replace("# ", "\\# ")
+        content = content.replace("## ", "\\## ")
+        content = content.replace("### ", "\\### ")
+        return content
+
     def generate_content_summary(self, filtered_paths: List[Path]) -> str:
         """ 使用过滤后的路径列表生成文件内容。 """
         content_str = ""
@@ -136,18 +149,36 @@ class ProjectDocumenter:
             relative_path_str = file_path.relative_to(self.root_path).as_posix()
             print(f"正在处理文件: {relative_path_str}")
 
-            lang = LANGUAGE_MAP.get(file_path.suffix.lower(), "")
+            # 获取文件扩展名
+            file_extension = file_path.suffix.lower()
+            
+            # 确定语言标识
+            lang = LANGUAGE_MAP.get(file_extension, "")
             if file_path.name in LANGUAGE_MAP:
                 lang = LANGUAGE_MAP[file_path.name]
             
-            content_str += f"## `{relative_path_str}`\n\n```{lang}\n"
+            content_str += f"## `{relative_path_str}`\n\n"
+            
             try:
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     content = f.read()
-                    content_str += content if content else "[文件为空]"
-            except Exception:
-                content_str += "[无法读取文件内容: 可能是二进制文件或编码不支持]"
-            content_str += "\n```\n\n"
+                    
+                if not content:
+                    content_str += "[文件为空]\n\n"
+                    continue
+                
+                # 对特殊文件类型进行处理
+                if file_extension in SPECIAL_HANDLING_EXTENSIONS:
+                    # 对于markdown等文本文件，使用转义处理
+                    escaped_content = self._escape_markdown_content(content)
+                    content_str += f"````{lang}\n{escaped_content}\n````\n\n"
+                else:
+                    # 对于代码文件，正常处理
+                    content_str += f"```{lang}\n{content}\n```\n\n"
+                    
+            except Exception as e:
+                content_str += f"[无法读取文件内容: {str(e)}]\n\n"
+                
         return content_str
 
     def generate_full_overview(self, output_file: str):
